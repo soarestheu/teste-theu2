@@ -1,0 +1,54 @@
+version: "3"
+services:
+  #PHP Service
+  cast-api:
+    container_name: cast-api
+    build:
+      context: .docker/php
+      dockerfile: Dockerfile
+    image: "cast/php-apache"
+    ports:
+      - 8080:80
+    volumes:
+      - ./backend/:/var/www/html
+    networks:
+      - cast
+  #SQL Server Service
+  cast-db:
+    container_name: cast-db
+    image: "cast/sqlserver"
+    build: .docker/sql
+    restart: unless-stopped
+    hostname: "sqlserver"
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: Admin@12345
+    ports:
+      - 1433:1433
+    volumes:
+      - ms-sqlserver-data:/var/opt/mssql
+    networks:
+      - cast
+  # SPA App
+  cast-front:
+    container_name: cast-app
+    image: "cast/vue"
+    build:
+      context: .
+      dockerfile: .docker/vue/Dockerfile
+    volumes:
+      - "./frontend/:/app"
+      - "/app/node_modules"
+    ports:
+      - "3000:3000"
+    networks:
+      - cast
+
+# Docker Networks
+networks:
+  cast:
+    driver: bridge
+#Volumes
+volumes:
+  ms-sqlserver-data:
+    driver: local
