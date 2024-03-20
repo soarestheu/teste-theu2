@@ -15,18 +15,17 @@ services:
       - cast
   #SQL Server Service
   cast-db:
-    container_name: cast-db
-    image: "cast/sqlserver"
-    build: .docker/sql
-    restart: unless-stopped
-    hostname: "sqlserver"
-    environment:
-      ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: Admin@12345
-    ports:
-      - 1433:1433
+    image: 'mysql:8.0'
+    working_dir: /application
     volumes:
-      - ms-sqlserver-data:/var/opt/mssql
+        - '.:/application'
+    environment:
+        - MYSQL_ROOT_PASSWORD=admin
+        - MYSQL_DATABASE=desafio
+        - MYSQL_USER=desafiousr
+        - MYSQL_PASSWORD=desafiopswd
+    ports:
+        - '58002:3306'
     networks:
       - cast
   # SPA App
